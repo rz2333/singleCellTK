@@ -23,6 +23,9 @@
     missMat <- Matrix::Matrix(0, nrow = length(missGene), ncol = ncol(matrix),
         dimnames = list(missGene, NULL))
 
+    matb <- as(matrix, "dgCMatrix")
+    rownames(matb) <- rownames(matrix)
+    
     mat <- rbind(matrix,missMat)
     if (anyDuplicated(rownames(mat))) {
         mat <- mat[!duplicated(rownames(mat)), ]
@@ -73,17 +76,17 @@
         cb[[i]] <- .readBarcodes(file.path(dir, barcodesFile))
         if (isTRUE(cbNotFirstCol)) {
             message("First column of barcode file was row index and it was removed.")
-            cb[[i]] <- cb[[i]][, -1]            
+            cb[[i]] <- cb[[i]][, -1, drop=FALSE]            
         }
 
         fe[[i]] <- .readFeatures(file.path(dir, featuresFile))
         if (isTRUE(feNotFirstCol)) {
             message("First column of gene file was row index and it was removed.")
-            fe[[i]] <- fe[[i]][, -1]            
+            fe[[i]] <- fe[[i]][, -1, drop=FALSE]            
         }
 
         mat[[i]] <- .readMatrixMM(file.path(dir, matrixFile), 
-            gzipped = gzipped, class = 'Matrix')
+            gzipped = gzipped, class = class)
         mat[[i]] <- t(mat[[i]])
         rownames(mat[[i]]) <- fe[[i]][[1]]
     }
