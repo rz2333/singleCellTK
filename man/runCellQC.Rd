@@ -4,25 +4,30 @@
 \alias{runCellQC}
 \title{Perform comprehensive single cell QC}
 \usage{
-runCellQC(
-  sce,
-  algorithms = c("doubletCells"),
-  sample = NULL,
-  assayName = "counts",
-  ...
-)
+runCellQC(sce, algorithms = c("QCMetrics", "doubletCells", "cxds",
+  "bcds", "cxds_bcds_hybrid", "decontX"), sample = NULL,
+  geneSetList = NULL, geneSetListLocation = "rownames",
+  geneSetCollection = NULL, assayName = "counts", seed = 12345)
 }
 \arguments{
 \item{sce}{A \link[SingleCellExperiment]{SingleCellExperiment} object.}
 
 \item{algorithms}{Character vector. Specify which QC algorithms to run.
-Available options are "decontX" and "doubletCells".}
+Available options are "QCMetrics", "scrublet", "doubletCells", "cxds", "bcds", "cxds_bcds_hybrid", and "decontX".}
 
 \item{sample}{Character vector. Indicates which sample each cell belongs to.
 Algorithms will be run on cells from each sample separately.}
 
+\item{geneSetList}{See \code{runPerCellQC}. Default NULL.}
+
+\item{geneSetListLocation}{See \code{runPerCellQC}. Default NULL.}
+
+\item{geneSetCollection}{See \code{runPerCellQC}. Default NULL.}
+
 \item{assayName}{A string specifying which assay contains the count
 matrix for cells.}
+
+\item{seed}{Seed for the random number generator. Default 12345.}
 }
 \value{
 SingleCellExperiment object containing the outputs of the
@@ -30,11 +35,13 @@ SingleCellExperiment object containing the outputs of the
 of \code{sce}.
 }
 \description{
-A wrapper function to run several QC algorithms on a SingleCellExperiment
-object containing cells after empty droplets have been removed.
+A wrapper function to run several QC algorithms on a
+ SingleCellExperiment
+ object containing cells after empty droplets have been removed.
 }
 \examples{
-data(emptyDropsSceExample, package = "singleCellTK")
-sce <- runCellQC(emptyDropsSceExample,
-  sample = colData(emptyDropsSceExample)$sample)
+\dontrun{
+data(sce_chcl, package = "scds")
+sce <- runCellQC(sce_chcl)
+}
 }

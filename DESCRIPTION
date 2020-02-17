@@ -63,10 +63,16 @@ Imports:
     shinythemes,
     umap,
     scran,
-    DropletUtils
+    DropletUtils,
+    scds,
+    reticulate,
+    tools,
+    scater,
+    withr,
+    Matrix,
+    GSEABase
 RoxygenNote: 7.0.2
 Suggests:
-    Matrix,
     testthat,
     Rsubread,
     BiocStyle,
@@ -78,8 +84,7 @@ Suggests:
     org.Hs.eg.db,
     scRNAseq,
     xtable,
-    spelling,
-    GSEABase
+    spelling
 VignetteBuilder: knitr
 URL: https://compbiomed.github.io/sctk_docs/
 BugReports: https://github.com/compbiomed/singleCellTK/issues
