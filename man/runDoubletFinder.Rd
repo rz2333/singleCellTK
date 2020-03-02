@@ -4,21 +4,38 @@
 \alias{runDoubletFinder}
 \title{Generates a doublet score for each cell via doubletFinder}
 \usage{
-runDoubletFinder(sce, sample, seed = 12345, seurat.pcs = 1:15,
-  seurat.res = 1.2, ...)
+runDoubletFinder(
+  inSCE,
+  useAssay = "counts",
+  sample = NULL,
+  seed = 12345,
+  seuratNfeatures = 2000,
+  seuratPcs = 1:15,
+  seuratRes = c(0.5, 1, 1.5, 2),
+  formationRate = 0.075,
+  verbose = FALSE
+)
 }
 \arguments{
-\item{sce}{SingleCellExperiment object. Must contain a counts matrix}
+\item{inSCE}{Input SingleCellExperiment object. Must contain a counts matrix}
+
+\item{useAssay}{Indicate which assay to use. Default "counts".}
 
 \item{sample}{Numeric vector. Each cell will be assigned a sample number.}
 
 \item{seed}{Seed for the random number generator. Default 12345.}
 
-\item{seurat.pcs}{Numeric vector. The PCs used in seurat function to 
+\item{seuratNfeatures}{Integer. Number of highly variable genes to use. Default 2000.}
+
+\item{seuratPcs}{Numeric vector. The PCs used in seurat function to
 determine number of clusters. Default 1:15.}
 
-\item{seurat.res}{Numeric vector. The resolution parameter used in seurat 
-which adjusts the number of clusters determined via the algorithm. Default 1.2.}
+\item{seuratRes}{Numeric vector. The resolution parameter used in seurat, which adjusts the
+number of clusters determined via the algorithm. Default c(0.5, 1, 1.5, 2).}
+
+\item{formationRate}{Doublet formation rate used within algorithm. Default 0.075.}
+
+\item{verbose}{Boolean. Wheter to print messages from Seurat and DoubletFinder. Default FALSE.}
 }
 \value{
 SingleCellExperiment object containing the
@@ -29,5 +46,8 @@ Uses doubletFinder to determine cells within the dataset
  suspected to be doublets.
 }
 \examples{
-sce <- runDoubletFinder(sce)
+\dontrun{
+data(sce_chcl, package = "scds")
+sce <- runDoubletFinder(sce_chcl)
+}
 }
