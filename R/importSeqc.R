@@ -25,17 +25,10 @@
     missMat <- Matrix::Matrix(0, nrow = length(missGene), ncol = ncol(matrix),
         dimnames = list(missGene, NULL))
 
-<<<<<<< HEAD
-    matb <- as(matrix, "dgCMatrix")
-    rownames(matb) <- rownames(matrix)
-    
-    mat <- rbind(matrix,missMat)
-=======
     matb <- methods::as(matrix, "dgCMatrix")
     rownames(matb) <- rownames(matrix)
 
     mat <- rbind(matb, missMat)
->>>>>>> upstream/importQC
     if (anyDuplicated(rownames(mat))) {
         mat <- mat[!duplicated(rownames(mat)), ]
         warning("Duplicated genes exist in count matrix. Filtered",
@@ -103,28 +96,11 @@
         barcodesFile <- paste(prefix[i], 'sparse_counts_barcodes.csv',
             sep = "_")
 
-<<<<<<< HEAD
-        cb[[i]] <- .readBarcodes(file.path(dir, barcodesFile))
-        if (isTRUE(cbNotFirstCol)) {
-            message("First column of barcode file was row index and it was removed.")
-            cb[[i]] <- cb[[i]][, -1, drop=FALSE]            
-        }
-
-        fe[[i]] <- .readFeatures(file.path(dir, featuresFile))
-        if (isTRUE(feNotFirstCol)) {
-            message("First column of gene file was row index and it was removed.")
-            fe[[i]] <- fe[[i]][, -1, drop=FALSE]            
-        }
-
-        mat[[i]] <- .readMatrixMM(file.path(dir, matrixFile), 
-            gzipped = gzipped, class = class)
-=======
         cb[[i]] <- .readBarcodesSEQC(file.path(dir, barcodesFile))
         fe[[i]] <- .readFeaturesSEQC(file.path(dir, featuresFile))
 
         mat[[i]] <- .readMatrixMM(file.path(dir, matrixFile),
             gzipped = gzipped, class = class, delayedArray = delayedArray)
->>>>>>> upstream/importQC
         mat[[i]] <- t(mat[[i]])
         rownames(mat[[i]]) <- fe[[i]][[1]]
     }
