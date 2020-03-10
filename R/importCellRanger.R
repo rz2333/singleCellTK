@@ -403,6 +403,21 @@
     return(sce)
 }
 
+.getCellRangerOutV2 <- function(dataTypeV2, reference) {
+    res <- vector("list", length = length(dataTypeV2))
+
+    for (i in seq_along(dataTypeV2)) {
+
+        if (dataTypeV2[i] == 'filtered') {
+            res[[i]] <- file.path('outs/filtered_gene_bc_matrices', reference[i])
+        } else {
+            res[[i]] <- file.path('outs/raw_gene_bc_matrices', reference[i])
+        }
+    }
+
+    cellRangerOutsV2 <- unlist(res)  
+    return(cellRangerOutsV2)  
+}
 
 #' @name importCellRanger
 #' @rdname importCellRanger
@@ -559,33 +574,81 @@ importCellRanger <- function(
 
 
 #' @rdname importCellRanger
-#' @param dataType The type of output to import. Whether to import the
-#'  filtered or the raw data. Can be one of "filtered" or
-#'  "raw". Default "filtered". When \code{dataType} is specified,
-#'  \code{cellRangerDirs} will be ignored.
+#' @param reference Character vector. The reference genome names. 
+#'  Default 'NULL'. The length of 'reference' must match the length of 
+#'  'dataType' if 'reference' is specified. Only needed for Cellranger
+#'  version below 3.0.0. 
+#' @param dataTypeV2 Character vector. The type of output to import for
+#'  Cellranger version below 3.0.0. Whether to import the filtered or the 
+#'  raw data. Can be one of filtered' or 'raw'. Default 'filtered'. When 
+#'  \code{cellRangerOuts} is specified, 'dataType' and 'reference' will 
+#'  be ignored.
+#' @param cellRangerOutsV2 Character vector. The intermediate paths  
+#'  to filtered or raw cell barcode, feature, and matrix files for each 
+#'  sample for Cellranger version below 3.0.0. If 'NULL', 'reference' and 
+#'  'dataType' will be to determine Cell Ranger output directory. If it has 
+#'  length 1, it assumes that all samples use the same genome reference and 
+#'  the function will load only filtered or raw data. 
+
 #' @export
 importCellRangerV2 <- function(
     cellRangerDirs = NULL,
     sampleDirs = NULL,
     sampleNames = NULL,
-    dataType = c("filtered", "raw"),
+    dataTypeV2 = c("filtered", "raw"),
     class = c("Matrix", "matrix"),
-    delayedArray = TRUE) {
+    delayedArray = TRUE,
+    reference = NULL,
+    cellRangerOutsV2 = NULL) {
 
     class <- match.arg(class)
-    dataType <- match.arg(dataType)
+    dataTypeV2 <- match.arg(dataTypeV2)
 
-    if (dataType == "filtered") {
-        cellRangerOuts <- "outs/filtered_gene_bc_matrix/"
-    } else if (dataType == "raw") {
-        cellRangerOuts <- "outs/raw_gene_bc_matrix/"
+    if (any(!dataTypeV2 %in% c('filtered', 'raw'))) {
+        stop("dataTypeV2 must be 'filtered' or 'raw'")
     }
+    # if (dataType == "filtered") {
+    #     cellRangerOuts <- "outs/filtered_gene_bc_matrix/"
+    # } else if (dataType == "raw") {
+    #     cellRangerOuts <- "outs/raw_gene_bc_matrix/"
+    # }
+
+    # if (is.null(sampleDirs)) {
+    #     res <- list.dirs(cellRangerDirs, recursive = FALSE)
+    #     sampleLength <- length(unlist(res))
+
+    #     if (length(reference) != sampleLength | length(dataType) != sampleLength) {
+    #         stop("Length of 'dataType' and 'reference' must match 
+    #             the length of
+    #             subdirectories in 'cellRangerDirs'!")
+    #     }
+    # } else {
+    #     sampleLength <- length(unlist(sampleDirs))
+
+    #     if (length(reference) != sampleLength | length(dataType) != sampleLength) {
+    #         stop("Length of dataType and reference must match 
+    #             the length of
+    #             subdirectories in 'cellRangerDirs
+    #             or the length of 'sampleDirs'!")
+    #     }        
+    # }
+
+    if (length(dataTypeV2) != length(reference)) {
+        stop("The length of 'dataTypeV2' must match
+            the length of 'reference'!")
+    }
+
+    # Generate cellRangerOuts if it's null
+    if (is.null(cellRangerOutsV2)) {
+        cellRangerOutsV2 <- .getCellRangerOutV2(dataTypeV2, reference)
+    }
+
 
     .importCellRanger(cellRangerDirs = cellRangerDirs,
         sampleDirs = sampleDirs,
         sampleNames = sampleNames,
-        cellRangerOuts = cellRangerOuts,
-        dataType = dataType,
+        cellRangerOuts = cellRangerOutsV2,
+        dataType = NULL,
         matrixFileNames = "matrix.mtx",
         featuresFileNames = "genes.tsv",
         barcodesFileNames = "barcodes.tsv",
@@ -599,7 +662,7 @@ importCellRangerV2 <- function(
 #' @name importCellRangerV2Sample
 #' @title Construct SCE object from Cell Ranger V2 output for a single sample
 #' @description Read the filtered barcodes, features, and matrices for all
-#'  samples from Cell Ranger V3 output. Files are assumed to be named
+#'  samples from Cell Ranger V2 output. Files are assumed to be named
 #'  "matrix.mtx", "genes.tsv", and "barcodes.tsv".
 #' @param sampleDir  A path to the directory containing the data files. Default "./".
 #' @param sampleName A User-defined sample name. This will be prepended to all cell barcode IDs.
@@ -610,6 +673,21 @@ importCellRangerV2 <- function(
 #'  \link[base]{matrix} function). Default "Matrix".
 #' @param delayedArray Boolean. Whether to read the expression matrix as
 #'  \link[DelayedArray]{DelayedArray} object or not. Default \code{TRUE}.
+#' @param reference Character vector. The reference genome names. 
+#'  Default 'NULL'. The length of 'reference' must match the length of 
+#'  'dataType' if 'reference' is specified. Only needed for Cellranger
+#'  version below 3.0.0. 
+#' @param dataTypeV2 Character vector. The type of output to import for
+#'  Cellranger version below 3.0.0. Whether to import the filtered or the 
+#'  raw data. Can be one of filtered' or 'raw'. Default 'filtered'. When 
+#'  \code{cellRangerOuts} is specified, 'dataType' and 'reference' will 
+#'  be ignored.
+#' @param cellRangerOutsV2 Character vector. The intermediate paths  
+#'  to filtered or raw cell barcode, feature, and matrix files for each 
+#'  sample for Cellranger version below 3.0.0. If 'NULL', 'reference' and 
+#'  'dataType' will be to determine Cell Ranger output directory. If it has 
+#'  length 1, it assumes that all samples use the same genome reference and 
+#'  the function will load only filtered or raw data. 
 #' @return A \code{SingleCellExperiment} object containing the count
 #'  matrix, the feature annotations, and the cell annotation for the sample.
 #' @export
@@ -617,15 +695,33 @@ importCellRangerV2Sample <- function(
     sampleDir = NULL,
     sampleName = NULL,
     class = c("Matrix", "matrix"),
-    delayedArray = TRUE) {
+    delayedArray = TRUE,
+    dataTypeV2 = c("filtered", "raw"),
+    cellRangerOutsV2 = NULL, 
+    reference = NULL) {
 
     class <- match.arg(class)
+    dataTypeV2 <- match.arg(dataTypeV2)
+
+    if (any(!dataTypeV2 %in% c('filtered', 'raw'))) {
+        stop("dataTypeV2 must be 'filtered' or 'raw'")
+    }
+
+    if (length(dataTypeV2) != length(reference)) {
+        stop("The length of 'dataTypeV2' must match
+            the length of 'reference'!")
+    }
+
+    # Generate cellRangerOuts if it's null
+    if (is.null(cellRangerOutsV2)) {
+        cellRangerOutsV2 <- .getCellRangerOutV2(dataTypeV2, reference)
+    }    
 
     .importCellRanger(cellRangerDirs = NULL,
         sampleDirs = sampleDir,
         sampleNames = sampleName,
-        cellRangerOuts = "",
-        dataType = "filtered", # ignored
+        cellRangerOuts = cellRangerOutsV2,
+        dataType = NULL, # ignored
         matrixFileNames = "matrix.mtx",
         featuresFileNames = "genes.tsv",
         barcodesFileNames = "barcodes.tsv",

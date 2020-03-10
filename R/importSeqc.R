@@ -170,11 +170,11 @@
 #'  \link[DelayedArray]{DelayedArray} object or not. Default \code{TRUE}.
 #' @param feNotFirstCol Boolean. \code{TRUE} if first column of
 #'  sparse_counts_genes.csv
-#' is row index and it will be removed. \code{FALSE} the first column will
+#'  is row index and it will be removed. \code{FALSE} the first column will
 #'  be kept.
 #' @param cbNotFirstCol Boolean. \code{TRUE} if first column of
 #'  sparse_counts_barcode.csv
-#' is row index and it will be removed. \code{FALSE} the first column will
+#'  is row index and it will be removed. \code{FALSE} the first column will
 #'  be kept.
 #' @param combinedSample Boolean. If \code{TRUE}, \code{importSEQC} returns a
 #' \code{SingleCellExperiment} object containing the combined count matrix,
